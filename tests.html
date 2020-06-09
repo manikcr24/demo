@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <title>ChatApp.V2</title>
+  </head>
+  <style media="screen">
+    #contacts {
+      height: 700px;
+      max-height: 92vh;
+      border-right: 5px solid #5c5b5b;
+    }
+    .chat-header{
+      min-height: 10vh;
+      max-height: 10vh;
+      padding: .75rem 1.25rem;
+      margin-bottom: 0;
+      background-color: rgba(0,0,0,.03);
+      border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    .chat-body{
+      min-height: 72vh;
+      max-height: 72vh;
+    }
+    .chat-footer{
+      padding-top: 10px;
+      bottom: 0px;
+      position: sticky;
+      position: inherit;
+      min-height: 10vh;
+      max-height: 10vh
+    }
+
+    .message{
+      position: relative;
+      display: block;
+      padding: .75rem 1.25rem;
+      background-color: #eaeaea;
+      width: max-content;
+      max-width: 80%;
+      color: black;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.125);
+    }
+    .left{
+        float: left;
+    }
+    .right{
+        float: right;
+    }
+    .chat{
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid rgba(0,0,0,.125);
+      border-radius: .25rem;
+    }
+
+  </style>
+  <body>
+    <div class="container-fluid" id="body-container">
+      <div class="row"> <!-- For nav bar -->
+        <div class="col-md-12">
+          <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">ChatApp2</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#">{You} <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">FindFriends</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Settings
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="#">Profile</a>
+                    <a class="dropdown-item" href="#">Logout</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div class="row"> <!-- For contacts and chat -->
+        <div class="col-md-3"> <!-- For contacts -->
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12 overflow-auto" id="contacts">
+                <div class="row">
+                  <div class=""> Manik <span class="badge badge-light" float="right">4</span></div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="list-group-item">Manik <span class="badge badge-light" align="right">4</span></div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="list-group-item">Manik <span class="badge badge-light" align="right">4</span></div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="list-group-item">Manik <span class="badge badge-light" align="right">4</span></div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-9"> <!-- For chat -->
+          <div class="container-fluid chat">
+            <div class="row chat-header">  <!-- Chat header -->
+              <div class="col-md-12">
+                <h5 class="card-title">Manikanta Cheruku</h5>
+              </div>
+            </div>
+
+            <div class="row chat-body overflow-auto"> <!-- conversations -->
+              <div class="col-md-12">
+                <div class="container-fluid">
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odio </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message left">
+                        <message>Cras justo odio Cras justo odio </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message left">
+                        <message>Cras justo odio Cras justo odio </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message left">
+                        <message>Cras justo odio Cras justo odio </message>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="message right">
+                        <message>Cras justo odi Cras justo odio Cras justo odio  </message>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            <div class="row chat-footer"> <!-- Input -->
+              <div class="col-md-12">
+                  <form class="form-group" action="index.html" method="post">
+                    <div class="form-group">
+                      <input type="text" class="form-control" placeholder="start typing" id="email">
+                    </div>
+                  </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

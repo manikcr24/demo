@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Signup</title>
+  </head>
+  <style media="screen">
+    #dummy{
+      height: 7vh;
+    }
+
+  </style>
+  <body>
+    <div class="container">
+      <div class="row" id="dummy">
+
+      </div>
+      <div class="row">
+        <div class="col-md-12" align="center">
+          <h1>Signup for ChatAppV2</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+          <form action="" method="post">
+            <div class="form-group">
+              <label for="inputName">Name</label>
+              <input type="text" class="form-control" id="inputName" aria-describedby="emailHelp" placeholder="Enter name" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Email address</label>
+              <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email" name="useremail" required>
+              <small id="invalidEmail" class="form-text text-muted" style="display: none">Email already in use</small>
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">Password</label>
+              <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="userpassword" required>
+            </div>
+
+            <button type="button" id="otpsender" class="btn btn-primary">Get OTP </button>
+            <small id="otpFooter" class="form-text text-muted" style="display: none">OTP sent <i class="fa fa-check" aria-hidden="true"></i></small>
+            <div class="form-group">
+              <label for="exampleInputOTP"></label>
+              <input type="text" class="form-control" id="inputOTP" aria-describedby="OTPHelp" placeholder="Enter OTP" name="otp-input">
+              <small id="invalid-otp" class="form-text text-muted" style="display:none">Invalid OTP</small>
+            </div>
+            <button type="button" id="otpvalidator" class="btn btn-primary">Validate OTP</button>
+            <button type="submit" id="submit-button" class="btn btn-primary" disabled>Sign up</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+      $(document).ready(function(){
+        var emailVerified = false;
+        var verifiedEmail;
+        var wrongEmail = false;
+        var emailAlreadyInuse = false;
+        $('#inputPassword').focus(function(){
+          var email = $('#inputEmail').val();
+          if(emailVerified && verifiedEmail && verifiedEmail == email){
+            return;
+          }
+
+          $.ajax({
+						type:'GET',
+						url:'/userverify',
+						data:{email:email},
+						success:function(result){
+							console.log('RETURN from userverify '+ JSON.stringify(result));
+              if(result.success != 0){
+                $('#invalidEmail').show();
+                $('#inputEmail').addClass('is-invalid');
+                emailAlreadyInuse = true;
+                $('#otpsender').prop("disabled", true);
+                emailVerified = false;
+                $('#form-submit').prop('disabled', true);
+              }
+              else{
+                $('#otpsender').prop("disabled", false);
+                $('#inputEmail').removeClass('is-invalid');
+                $('#inputEmail').addClass('is-valid');
+                $('#invalidEmail').hide();
+                emailVerified = true;
+                emailAlreadyInuse = false;
+                verifiedEmail = email;
+              }
+						}
+					});
+        });
+
+
+        var OTPValue;
+        $('#otpsender').click(function(evt){
+          evt.preventDefault();
+          //alert('Button clicked');
+          $('#otpFooter').show();
+
+          $.ajax({
+						type:'GET',
+						url:'/otp',
+						data:{email:$('#inputEmail').val()},
+						success:function(result){
+							console.log('RETURN from changepassword'+ JSON.stringify(result));
+              OTPValue = result.value;
+						}
+					});
+
+        });
+
+
+
+        $('#otpvalidator').click(function(evt){
+        //  alert('otpvalidator button clicked');
+          evt.preventDefault();
+          var enteredOTP = $('#inputOTP').val();
+          // alert('poppler '+enteredOTP);
+          $.ajax({
+						type:'GET',
+						url:'/otpvalidator',
+						data:{OTP: enteredOTP, actualOTP: OTPValue},
+						success:function(result){
+							console.log('RETURN from otpvalidator'+ JSON.stringify(result));
+              // alert(result.success);
+              console.log(result.success);
+              if(result.success == 1){
+                $('#submit-button').removeAttr('disabled');
+                $('#invalid-otp').hide();
+                $('#otpvalidator').removeClass("btn-primary");
+                $('#otpvalidator').addClass("btn-success");
+                $('#otpvalidator').html("Validated");
+                $('#otpvalidator').prop("disabled", true);
+                $('#inputOTP').prop("disabled", true);
+                $('#otpsender').prop("disabled", true);
+              }
+              else {
+                $('#invalid-otp').show();
+              }
+						}
+					});
+        })
+
+      });
+
+    </script>
+
+  </body>
+
+</html>

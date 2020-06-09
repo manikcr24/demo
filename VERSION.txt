@@ -1,0 +1,21 @@
+> 3.6    07/06/2020 20:00   Added UI for deleteFriend, addfriend; Message counter added, counter increases until chat box opens, then resets to 0.
+
+> 3.5    07/06/2020 13:32   Added RESTapis for deleteFriend, deleteUser, addfriend; Limitation that was there in the previous version has now been removed.
+
+> 3.4    04/06/2020 17:31   Introduced SOCKETS. Each logged-in user will have a separate socket. Limitation: while sending messages, chatboxes should be opened on both sides. (if manik has to chat with katna, both users have to log in; manik should open katna's chatbox and katna should open manik's chatbox)
+
+> 3.3.1  04/06/2020 10:08   A little development on findFriends module; friends can be searched form database based on keyword search; Add friend button is provided to make a new contact.
+
+> 3.3    03/06/2020 18:57   Removed static contacts and static chat boxes(Initially created for testing purpose). Now contacts and chats are created dynamically.
+
+> 3.2.1  03/06/2020 17:05   Fixed few bugs; Introduced findFriends option to search new friends(needs development);
+
+> 3.2    03/06/2020 00:47   Creation of chat boxes dynamically; Creation of messages(only sent) dynamically & appending to container; learnt how to make events work on elements that are loaded dynamically.
+> 3.1    02/06/2020 17:19   Added logic to switch between tabs(chat boxes of different users).
+
+> 3.0.2  01/06/2020   Live validator for signup page; Built contacts section with Online/Offline status and number of messages badge; Introduced Profile page(Needs further development) in which any use can open profile of any other user without logging in. Eg: localhost:port/profile/profile_name
+
+> 3.0.1  Few bug fixes on login page.
+> 3.0    Redirection to home page from login and signup with 'req.session'
+> 3.0    Live validator for email and password in login page
+> 2.0    Signup page integrated with OTP and validator

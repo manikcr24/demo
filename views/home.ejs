@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <script src="/scripts/script1.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/styles/style1.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+      var socket;
+      var myID;
+      var availableChats = [];
+    </script>
+    <title>ChatApp.V2</title>
+  </head>
+
+  <body>
+    <div class="container-fluid" id="body-container">
+      <div class="row"> <!-- For nav bar -->
+        <div class="col-md-12">
+          <nav class="navbar navbar-expand-lg navbar-dark blue-nav">
+            <a class="navbar-brand" href="#">ChatApp2</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#"><%= data.username %> <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exampleModalCenter">Friends</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Settings
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="#">Profile</a>
+                    <a class="dropdown-item" href="/logout">Logout</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div class="row"> <!-- For contacts and chat -->
+        <div class="col-md-3"> <!-- For contacts -->
+          <div class="container-fluid" id="contacts-header">
+            <div class="row">
+              <div class="col-md-12">
+                <h4>CONTACTS</h4>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                <input id="email" type="text" class="form-control" name="email" placeholder="Search Contacts">
+              </div>
+            </div>
+          </div>
+          <div class="container-fluid overflow-auto" id="contacts">
+
+          </div>
+
+        </div>
+
+        <div class="col-md-9" id="chats-container">
+
+        </div>
+      </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+
+      myID = '<%= data.userId %>';
+      var thisIsMyID = myID;
+
+      function createContactAndChatBox(friend, contactFormatForChat, messageEle) {
+        var contact = createContactFor(friend);
+        var chatBox = createNewChatfor(contactFormatForChat);
+        if(messageEle){
+          chatBox.children[1].children[0].children[0].appendChild(messageEle); // appendChild(messageEle);
+        }
+        document.getElementById('contacts').appendChild(contact);
+        document.getElementById('chats-container').appendChild(chatBox);
+      }
+
+      function createContactAndChatBoxFor(friendId, messageEle) {
+        // var friendId = friends[i];
+        $.ajax({
+          type: 'GET',
+          url: '/users/'+friendId,
+          success: function(response){
+            // alert(JSON.stringify(response));
+            console.log(JSON.stringify(response));
+            response = response[0];
+            var friend = { name: response.name,
+                           status: 'Unknown',
+                           ID: response._id,
+                           friends: response.friends
+                         };
+            console.log(JSON.stringify(friend));
+            // alert(JSON.stringify(friend));
+            var contactFormatForChat = {contactID: friend.ID, contactName: friend.name, status: friend.status};
+            createContactAndChatBox(friend, contactFormatForChat, messageEle);
+            // var contact = createContactFor(friend);
+            // var chatBox = createNewChatfor(contactFormatForChat);
+            // document.getElementById('contacts').appendChild(contact);
+            // document.getElementById('chats-container').appendChild(chatBox);
+          }
+        });
+        availableChats.push(friendId);
+      }
+      $(document).ready(function(){
+        // get friends
+        $.ajax({
+          type: 'GET',
+          url: '/users/'+myID+'/friends',
+          data: {myID: myID},
+          success: function(response){
+            var friends = response.friends;
+            for(var i=0; i<friends.length; i++){
+              var friendId = friends[i];
+              createContactAndChatBoxFor(friendId, null);
+            }
+          }
+        });
+      });
+
+      $(document).ready(function(){
+        socket = io();
+        console.log(socket);
+        socket.emit('userloggedin', {id: myID});
+
+      });
+
+
+      // var details = [{name: 'manik', status: 'Away', ID:'123123'}, {name: 'hanuman', status: 'Online', ID:'123124'}, {name: 'Vinayaka', status: 'AlwaysON', ID:'999999'}]
+      // for(var i=0; i<details.length; i++){
+      //   var contact = createContactFor(details[i]);
+      //   document.getElementById('contacts').appendChild(contact);
+      // }
+
+      $(document).ready(function(){
+        var currentActiveChat = null;
+
+        $(document).on('click', '.contact-header', function(){
+        // $('.contact-header').click(function(){
+          var contactID = $(this).prop('id');
+          var ID = contactID.split('-')[1];
+          // var contactName = $(this).children()[0].children[0].children[0].children[0].children[0].children[0].innerHTML;
+          // var status = $(this).children()[0].children[0].children[0].children[0].children[1].children[0].innerHTML;
+          // var newContact = {contactID: ID, contactName: contactName, status: status};
+          //alert(data);
+          var chatID = 'chat-'+ID;
+          if(currentActiveChat)
+             currentActiveChat.removeClass('active');
+          if(availableChats.indexOf(ID) == -1){
+            // var newChat = createNewChatfor(newContact);
+            // document.getElementById('chats-container').appendChild(newChat);
+            // add newChat to chats-container
+            availableChats.push(ID);
+          }
+          $('#'+chatID).addClass('active');
+          currentActiveChat = $('#'+chatID);
+          $('#contact-'+ID).children().children().children().children()[1].children[0].innerHTML = "";
+          // currentActiveChat.children().children().children().children()[1].children[0].innerHTML = "";
+        });
+
+        $(document).on('hover', '.contact-header', function(){
+        // $('.contact-header').hover(function(){
+          $(this).css({'cursor':'pointer'});
+          $(this).addClass('highlight');
+        }, function(){
+          $(this).css({'cursor': 'auto'});
+          $(this).removeClass('highlight');
+        });
+
+        $(document).on('mouseover', '.contact-header', function(){
+          $(this).css({'cursor':'pointer'});
+          $(this).addClass('highlight');
+        });
+
+        $(document).on('mouseleave', '.contact-header', function(){
+          $(this).css({'cursor': 'auto'});
+          $(this).removeClass('highlight');
+        });
+
+
+        $(document).on('submit','.message-sender-form', function(evt){
+          evt.preventDefault();
+          var inpFieldEle = $(this).children()[0].children[0];
+          var message = inpFieldEle.value;
+          // alert(message);
+          var sentMessage = createSenderMessage(message);
+          var arr = $(this).children().children().prop('id').split('-');
+
+          var ID = arr[arr.length-1];
+          var chatBody = $('#chat-body-for-'+ID);
+          chatBody.children().children()[0].appendChild(sentMessage);
+          inpFieldEle.value = '';
+          socket.emit('send-message', {to: ID, from: myID, message: message});
+        });
+
+        socket.on('gotMessage', function(data){
+          // alert('got message');
+          var senderId = data.from;
+          var message = data.message;
+          var messageEle = createReceivedMessage(message);
+          console.log(messageEle);
+          // if(chatBody)
+          if(availableChats.indexOf(senderId) > -1){
+              var chatBody = document.getElementById('chat-body-for-'+senderId);
+              chatBody.children[0].children[0].appendChild(messageEle);
+              currentMessageCount = $('#contact-'+senderId).children().children().children().children()[1].children[0].innerHTML;
+              if(!currentMessageCount){
+                currentMessageCount = 0;
+              }
+              currentMessageCount = parseInt(currentMessageCount);
+              currentMessageCount += 1;
+              if( !$('#chat-'+senderId).hasClass('active') ){
+                $('#contact-'+senderId).children().children().children().children()[1].children[0].innerHTML = currentMessageCount;
+              }
+          } else {
+            createContactAndChatBoxFor(senderId, messageEle);
+            // alert('chat does not exist');
+          }
+        });
+
+        $(document).on('click', '.un-friend-button', function(evt){
+          var id = $(this).prop('id').split('-')[1];
+          //alert('Unfriend - '+id );
+          var thisButton = $(this);
+          thisButton.prop('disabled', true);
+          $.ajax({
+            type: 'DELETE',
+            url: '/users/'+myID+'/friends/'+id,
+            success: function(response){
+              console.log(JSON.stringify(response));
+              // alert(JSON.stringify(response));
+              availableChats.splice(availableChats.indexOf(id), 1);
+              // availableChats.push(result._id);
+              thisButton.removeClass('btn-warning');
+              thisButton.removeClass('un-friend-button');
+              thisButton.addClass('add-friend-button');
+              thisButton.addClass('btn-primary');
+              thisButton.html("Add friend");
+              thisButton.prop('id', 'add-friend-'+id);
+              $('#chat-'+id).remove();
+              $('#contact-'+id).remove();
+              thisButton.prop('disabled', false);
+            }
+          });
+        })
+
+        $(document).on('click', '.add-friend-button', function(evt){
+          var id = $(this).prop('id').split('-')[2];
+          // alert(id);
+
+          var thisButton = $(this);
+          thisButton.prop('disabled', true);
+          $.ajax({
+            //type: 'GET',
+            type: 'POST',
+            // url: '/users/'+myID+'/addfriend/'+id,
+            url: '/users/'+myID+'/friends',
+            data: {friendID: id},
+            success: function(result){
+              // alert('got response '+JSON.stringify(result));
+              if(result.success && result.success == false)
+                return;
+              else{
+                var data = {name: result.name, ID: result._id, email: result.email, status: 'Unknown'};
+                createContactAndChatBox(data, {contactID: result._id, contactName: result.name, status: 'Unknown_'}, null);
+                availableChats.push(result._id);
+                thisButton.removeClass('btn-primary');
+                thisButton.removeClass('add-friend-button');
+                thisButton.addClass('un-friend-button');
+                thisButton.addClass('btn-warning');
+                thisButton.html("Unfriend");
+                thisButton.prop('id', 'unfriend-'+result._id);
+                thisButton.prop('disabled', false);
+                // var contact = createContactFor(data);
+                // document.getElementById('contacts').appendChild(contact);
+              }
+            }
+          })
+
+        });
+
+      });
+
+
+
+    </script>
+
+
+    <!-- modal -->
+
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Friends</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body overflow-auto">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                  <input id="friendFinder" type="text" class="form-control" name="searchFriends" placeholder="Search Friends">
+                </div>
+              </div>
+              <div class="row">
+                <div class="container" id="searchResults">
+                  <!-- <div class="row search-result" id="search-result-616c6d3434">  //searchResult prototype
+                    <div class="col-md-8">
+                      <p class="font-12">Manik cheruku</p>
+                    </div>
+                    <div class="col-md-4">
+                      <button type="button" class="btn btn-primary" name="button" id="add-616c6d3434">Add friend</button>
+                    </div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      var searchResults = [];
+      $(document).ready(function(){
+        $('#friendFinder').on('input', function(){
+          searchResults = [];
+          // $('#searchResults').empty();
+          var searchKeyword = $(this).val();
+          if(searchKeyword.length < 4)
+            return;
+          $.ajax({
+						type:'GET',
+						url:'/showusers',
+						data:{keyword: searchKeyword},
+						success:function(response){
+							console.log('RETURN from /showusers'+ JSON.stringify(response));
+              var result = response.arr;
+              $('#searchResults').empty();
+              for(var i=0;i<result.length;i++){
+                // var st = result[i].name;
+                var data = {name: result[i].name, id: result[i]._id}
+                // var row = createRow();
+                // var colMD12 = createColMD(12);
+                // colMD12.innerHTML = st;
+                if(data.id != myID){
+                  if(searchResults.indexOf(data.id) > -1) {
+
+                  }
+                  else {
+                    // createSearchResultForUnfriend
+                    var searchResult;
+                    if(availableChats.indexOf(data.id) > -1){
+                      searchResult = createSearchResultForUnfriend(data)
+                    }
+                    else{
+                      searchResult = createSearchResult(data);
+                    }
+                    document.getElementById('searchResults').appendChild(searchResult);
+                    searchResults.push(data.id);
+                  }
+                }
+              }
+						}
+					});
+        });
+
+        $("#exampleModalCenter").on('hidden.bs.modal', function(){
+            //alert("Hello World!");
+            searchResults = [];
+            $('#searchResults').empty(); // = [];
+        });
+      });
+    </script>
+
+  </body>
+</html>
