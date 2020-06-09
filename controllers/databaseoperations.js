@@ -9,16 +9,21 @@ mongoose.connect('mongodb://manik:admin123@ds245885.mlab.com:45885/chatapp2', {
 var userSchema = new Schema({
 		name: String,
 		email: String,
-		password: String,
+		// password: String,
 	  friends: Array,
     requestedYou: Array,
     youRequested: Array
 	});
 
+var userPassword = new Schema({
+  email: String,
+  password: String
+});
+
 
 //Documents / Tables
-var user_info =  Model('user_info',userSchema);
-
+var user_info =  Model('user_info', userSchema);
+var user_password = Model('user_password', userPassword);
 
 
 //databaseoperations
@@ -29,12 +34,24 @@ var saveUserToDatabase = function(req, res) {
   var userDetails={
     name: reqBody.username,
     email: reqBody.useremail,
-    password: reqBody.userpassword,
+    // password: reqBody.userpassword,
     friends: [],
     youRequested: [],
     requestedYou: []
   };
 
+  var user_password_information = {
+    email: reqBody.useremail,
+    password: reqBody.userpassword
+  };
+
+  user_password(user_password_information).save(function(err){
+    console.log('IN USER_PASSWORD_INFORMATION save...');
+    if(err){
+        // res.json({error: err});
+        console.log(err);
+    }
+  });
   user_info(userDetails).save(function(error){
       if(error)
         throw error;
@@ -47,20 +64,33 @@ var saveUserToDatabase = function(req, res) {
 var verifyPassword = function(req, res){
   var inputPassword = req.query.password;
   var email = req.query.email;
-  user_info.findOne({email:email}, function(err,result){
-		if(err){
-      // throw err;
-      res.json({status: "error", error: err});
+  // user_info.findOne({email:email}, function(err,result){
+	// 	if(err){
+  //     // throw err;
+  //     res.json({status: "error", error: err});
+  //   }
+  //
+	// 	if(result != null && result.password == inputPassword){
+  //     console.log('Passwords Matched');
+  //     res.json({success: 1});
+	// 	}
+  //   else{
+  //     res.json({success: 0});
+  //   }
+	// });
+  user_password.findOne({email: email}, function(err, result){
+    if(err){
+      res.json({err: err});
     }
-
-		if(result != null && result.password == inputPassword){
+    if(result != null && result.password == inputPassword){
       console.log('Passwords Matched');
       res.json({success: 1});
 		}
     else{
+      console.log('Passwords not Matched');
       res.json({success: 0});
     }
-	});
+  });
 }
 
 
@@ -260,10 +290,21 @@ var deleteUser = function(req, res){
   user_info.findOneAndDelete({_id: req.params.id}, function(err, doc){
     if(err){
       res.json({status: "error", error: err});
-    } else {
-      console.log('deleted user '+doc);
-      res.json({deletedUser: doc});
     }
-  })
+    else {
+      console.log('deleted user '+doc);
+      var email = doc.email;
+      user_password.findOneAndDelete({email: email}, function(err, deletedUser){
+        if(err){
+          res.json({status: "error", error: err});
+        } else {
+          // console.log('deleted user from table1 '+doc);
+          console.log('from table2 '+deletedUser);
+          res.json({details: doc, logins: deletedUser});
+          // return doc;
+        }
+      });
+    }
+  });
 }
 module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, connectEachOther: connectEachOther, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser};

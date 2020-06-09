@@ -98,14 +98,14 @@
           url: '/users/'+friendId,
           success: function(response){
             // alert(JSON.stringify(response));
-            console.log(JSON.stringify(response));
+            // console.log(JSON.stringify(response));
             response = response[0];
             var friend = { name: response.name,
                            status: 'Unknown',
                            ID: response._id,
                            friends: response.friends
                          };
-            console.log(JSON.stringify(friend));
+            // console.log(JSON.stringify(friend));
             // alert(JSON.stringify(friend));
             var contactFormatForChat = {contactID: friend.ID, contactName: friend.name, status: friend.status};
             createContactAndChatBox(friend, contactFormatForChat, messageEle);
@@ -135,7 +135,7 @@
 
       $(document).ready(function(){
         socket = io();
-        console.log(socket);
+        // console.log(socket);
         socket.emit('userloggedin', {id: myID});
 
       });
@@ -204,6 +204,7 @@
           var ID = arr[arr.length-1];
           var chatBody = $('#chat-body-for-'+ID);
           chatBody.children().children()[0].appendChild(sentMessage);
+          $('#chat-body-for-'+ID).scrollTop($('#chat-body-for-'+ID).children().children().height());
           inpFieldEle.value = '';
           socket.emit('send-message', {to: ID, from: myID, message: message});
         });
@@ -213,11 +214,12 @@
           var senderId = data.from;
           var message = data.message;
           var messageEle = createReceivedMessage(message);
-          console.log(messageEle);
+          // console.log(messageEle);
           // if(chatBody)
           if(availableChats.indexOf(senderId) > -1){
               var chatBody = document.getElementById('chat-body-for-'+senderId);
               chatBody.children[0].children[0].appendChild(messageEle);
+              $('#chat-body-for-'+senderId).scrollTop($('#chat-body-for-'+senderId).children().children().height());
               currentMessageCount = $('#contact-'+senderId).children().children().children().children()[1].children[0].innerHTML;
               if(!currentMessageCount){
                 currentMessageCount = 0;
@@ -242,7 +244,7 @@
             type: 'DELETE',
             url: '/users/'+myID+'/friends/'+id,
             success: function(response){
-              console.log(JSON.stringify(response));
+              // console.log(JSON.stringify(response));
               // alert(JSON.stringify(response));
               availableChats.splice(availableChats.indexOf(id), 1);
               // availableChats.push(result._id);
@@ -356,7 +358,7 @@
 						url:'/showusers',
 						data:{keyword: searchKeyword},
 						success:function(response){
-							console.log('RETURN from /showusers'+ JSON.stringify(response));
+							// console.log('RETURN from /showusers'+ JSON.stringify(response));
               var result = response.arr;
               $('#searchResults').empty();
               for(var i=0;i<result.length;i++){

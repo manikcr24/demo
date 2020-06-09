@@ -186,6 +186,7 @@ function createContactFor(data){
 
 function createSenderMessage(message) {
   var row = createRow();
+  row.classList.add('message-item');
   var colMD12 = createColMD(12);
   var messageDiv = document.createElement('div');
   messageDiv.classList.add('message');
@@ -200,8 +201,11 @@ function createSenderMessage(message) {
   return row;
 }
 
+
+
 function createReceivedMessage(message) {
   var row = createRow();
+  row.classList.add('message-item');
   var colMD12 = createColMD(12);
   var messageDiv = document.createElement('div');
   messageDiv.classList.add('message');

@@ -1,3 +1,5 @@
+> 4.0    09/06/2020 17:21   Major UI changes: added box shadows; different background colors for sender message and receiver message and more.
+  
 > 3.6    07/06/2020 20:00   Added UI for deleteFriend, addfriend; Message counter added, counter increases until chat box opens, then resets to 0.
 
 > 3.5    07/06/2020 13:32   Added RESTapis for deleteFriend, deleteUser, addfriend; Limitation that was there in the previous version has now been removed.

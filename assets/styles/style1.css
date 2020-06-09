@@ -1,7 +1,10 @@
 #contacts {
   height: 700px;
   max-height: 82vh;
-  border-right: 3px solid #0672bf;
+  /* border-right: 3px solid #0672bf; */
+}
+.contact-header {
+  box-shadow: -2px 1px 3px 0px #444444;
 }
 .chat-header{
   /* min-height: 10vh;
@@ -11,7 +14,8 @@
   padding: 0.4rem 0rem 0.4rem 0.9rem;
   margin-bottom: 0;
   background-color: rgba(0,0,0,.03);
-  border-bottom: 1px solid rgba(0,0,0,.125);
+  box-shadow: -3px 5px 12px 1px #898994;
+  /* border-bottom: 1px solid rgba(0,0,0,.125); */
 }
 .chat-body{
   min-height: 72vh;
@@ -26,6 +30,11 @@
   max-height: 10vh */
 }
 
+.message-item{
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 .message{
   position: relative;
   display: block;
@@ -38,10 +47,14 @@
   border: 1px solid rgba(255, 255, 255, 0.125);
 }
 .left{
-    float: left;
+  float: left;
+  background-color: #5a667f;
+  color: #ffffff;
 }
 .right{
-    float: right;
+  float: right;
+  color: #eaeaea;
+  background-color: #5f4d97
 }
 .chat{
   background-color: #fff;
@@ -49,6 +62,7 @@
   border: 1px solid rgba(0,0,0,.125);
   border-radius: .25rem;
   display: none;
+  box-shadow: -3px 6px 20px 0px #606973;
 }
 .active{
   display: block;
@@ -70,7 +84,7 @@
 }
 .contact{
   margin: 14px 0px 0px 0px;
-  border-bottom: 1.8px solid #0672bf;
+  /* border-bottom: 1.8px solid #0672bf; */
   border-radius: 5px;
   height: 51px
 }
