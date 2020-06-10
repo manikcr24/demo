@@ -6,6 +6,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
 
     <script src="/scripts/script1.js" charset="utf-8"></script>
     <link rel="stylesheet" href="/styles/style1.css">
@@ -87,7 +88,8 @@
         if(messageEle){
           chatBox.children[1].children[0].children[0].appendChild(messageEle); // appendChild(messageEle);
         }
-        document.getElementById('contacts').appendChild(contact);
+        $('#contacts').prepend(contact);
+        // document.getElementById('contacts').appendChild(contact);
         document.getElementById('chats-container').appendChild(chatBox);
       }
 
@@ -149,9 +151,11 @@
 
       $(document).ready(function(){
         var currentActiveChat = null;
-
+        var currentContactHeader = null;
+        var prevContactHeader = null;
         $(document).on('click', '.contact-header', function(){
         // $('.contact-header').click(function(){
+          currentContactHeader = $(this);
           var contactID = $(this).prop('id');
           var ID = contactID.split('-')[1];
           // var contactName = $(this).children()[0].children[0].children[0].children[0].children[0].children[0].innerHTML;
@@ -161,6 +165,13 @@
           var chatID = 'chat-'+ID;
           if(currentActiveChat)
              currentActiveChat.removeClass('active');
+
+          if(prevContactHeader){
+            prevContactHeader.removeClass('box-highlight');
+          }
+          currentContactHeader.addClass('box-highlight');
+          prevContactHeader = currentContactHeader;
+
           if(availableChats.indexOf(ID) == -1){
             // var newChat = createNewChatfor(newContact);
             // document.getElementById('chats-container').appendChild(newChat);
@@ -173,22 +184,22 @@
           // currentActiveChat.children().children().children().children()[1].children[0].innerHTML = "";
         });
 
-        $(document).on('hover', '.contact-header', function(){
-        // $('.contact-header').hover(function(){
-          $(this).css({'cursor':'pointer'});
-          $(this).addClass('highlight');
-        }, function(){
-          $(this).css({'cursor': 'auto'});
-          $(this).removeClass('highlight');
-        });
+        // $(document).on('hover', '.contact-header', function(){
+        // // $('.contact-header').hover(function(){
+        //   $(this).css({'cursor':'pointer'});
+        //   $(this).addClass('highlight');
+        // }, function(){
+        //   $(this).css({'cursor': 'auto'});
+        //   $(this).removeClass('highlight');
+        // });
 
         $(document).on('mouseover', '.contact-header', function(){
-          $(this).css({'cursor':'pointer'});
+          // $(this).css({'cursor':'pointer'});
           $(this).addClass('highlight');
         });
 
         $(document).on('mouseleave', '.contact-header', function(){
-          $(this).css({'cursor': 'auto'});
+          // $(this).css({'cursor': 'auto'});
           $(this).removeClass('highlight');
         });
 
@@ -207,6 +218,9 @@
           $('#chat-body-for-'+ID).scrollTop($('#chat-body-for-'+ID).children().children().height());
           inpFieldEle.value = '';
           socket.emit('send-message', {to: ID, from: myID, message: message});
+          var contactToBeShiftedUp = $('#contact-'+ID);
+          $('#contact-'+ID).remove();
+          $('#contacts').prepend(contactToBeShiftedUp);
         });
 
         socket.on('gotMessage', function(data){
@@ -229,8 +243,12 @@
               if( !$('#chat-'+senderId).hasClass('active') ){
                 $('#contact-'+senderId).children().children().children().children()[1].children[0].innerHTML = currentMessageCount;
               }
+              var contactToBeShiftedUp = $('#contact-'+senderId);
+              $('#contact-'+senderId).remove();
+              $('#contacts').prepend(contactToBeShiftedUp);
           } else {
             createContactAndChatBoxFor(senderId, messageEle);
+            // var contactNow = $('contact-'+senderId)
             // alert('chat does not exist');
           }
         });

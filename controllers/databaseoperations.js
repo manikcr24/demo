@@ -1,7 +1,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Model = mongoose.model;
-mongoose.connect('mongodb://manik:admin123@ds245885.mlab.com:45885/chatapp2', {
+const MONGO_URL = 'mongodb://manik:admin123@ds245885.mlab.com:45885/chatapp2';
+
+mongoose.connect(MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -64,20 +66,7 @@ var saveUserToDatabase = function(req, res) {
 var verifyPassword = function(req, res){
   var inputPassword = req.query.password;
   var email = req.query.email;
-  // user_info.findOne({email:email}, function(err,result){
-	// 	if(err){
-  //     // throw err;
-  //     res.json({status: "error", error: err});
-  //   }
-  //
-	// 	if(result != null && result.password == inputPassword){
-  //     console.log('Passwords Matched');
-  //     res.json({success: 1});
-	// 	}
-  //   else{
-  //     res.json({success: 0});
-  //   }
-	// });
+
   user_password.findOne({email: email}, function(err, result){
     if(err){
       res.json({err: err});
@@ -170,26 +159,8 @@ var getInfoOf = function(req, res) {
     }
   });
 }
-  //
-  var connectEachOther = function(req, res) {
-    // var myID = req.params.myID;
-    // var friendID = req.params.friendID;
-    //
-    // user_info.findOne({_id: myID}, function(err, result) {
-    //   result.friends.push(friendID);
-    //   result.save();
-    // }).then(function(result){
-    //   user_info.findOne({_id: friendID}, function(err, result) {
-    //     result.friends.push(myID);
-    //     result.save();
-    //   }).then(function());
-    // });
-  }
-
 
 var addContact = function(req, res){
-  // var myID = '5ed3e443ee134b64f8b4eafb'; //satish
-  // var friendID = '5ed3e3eeee134b64f8b4eafa'; //katna
   var myID = req.params.myID;
   var friendID = req.body.friendID;
   console.log('IN connectBoth');
@@ -248,11 +219,8 @@ var deleteFriend = function(req, res) {
       console.log('friend does not exist');
     }
   })
-  // user_info.findByIdAndRemove(friendId).then(function(ad){
-  //     res.send('status: Success');
-  // });
+
 }
-// addContact('5ed3e3eeee134b64f8b4eafa', '5ed3e443ee134b64f8b4eafb');
 
 var showUsers = function(req, res){
   var keyWord = req.query.keyword;
@@ -307,4 +275,4 @@ var deleteUser = function(req, res){
     }
   });
 }
-module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, connectEachOther: connectEachOther, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser};
+module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser};

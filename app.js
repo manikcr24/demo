@@ -162,6 +162,10 @@ app.get('/profile/:id', function(req, res){
   databaseoperations.renderUserAt(req, res);
 })
 
+app.get('/profile', function(req, res){
+  res.render('profile');
+})
+
 app.get('/showusers', function(req, res){
   console.log('get request on /getfriends');
   databaseoperations.showUsers(req, res);

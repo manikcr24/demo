@@ -7,13 +7,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/scripts/script1.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/styles/style1.css">
+    <link rel="stylesheet" href="/styles/style-set2.css">
     <title>Profile</title>
   </head>
   <body>
     <div class="container-fluid">
-      <div class="row"> <!-- For nav bar -->
+      <div class="row">
         <div class="col-md-12">
-          <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+          <nav class="navbar navbar-expand-lg navbar-dark blue-nav">
             <a class="navbar-brand" href="#">ChatApp2</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
@@ -21,10 +24,10 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
               <ul class="navbar-nav">
                 <li class="nav-item active">
-                  <a class="nav-link" href="#"><%= data.username %> <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="#"> {User name} <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">FindFriends</a>
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exampleModalCenter">Friends</a>
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -40,37 +43,43 @@
           </nav>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-3">
-          <img src="/images/profPic.png" height=250px width=250px class="rounded float-left" alt="...">
+      <div class="row" id="profile-pic-div"> <!-- Profile Pic -->
+        <div class="col-md-12" align="center">
+          <img src="./images/balganesh.jpg" alt="">
         </div>
-        <div class="col-md-9">
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <hr>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12" align="center">
+          <h3>I am, Manik Cheruku</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12" align="center">
+          <h4>Software Engineer</h4>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
           <div class="container-fluid">
             <div class="row">
               <div class="col-md-12">
-                <h1><%= data.username %></h1>
+                <h2>Contact</h2>
               </div>
             </div>
             <div class="row">
               <div class="col-md-12">
-                <h2><%= data.email %></h2>                
+
               </div>
             </div>
           </div>
         </div>
-
-
-        <!-- <div class="col-md-3">
-          <%= data.username %>
-        </div>
-        <div class="col-md-3">
-          <%= data.email %>
-        </div>
-        <div class="col-md-3">
-          <%= data.userId %>
-        </div> -->
-
       </div>
+
     </div>
   </body>
 </html>

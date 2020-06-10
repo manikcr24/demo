@@ -1,0 +1,26 @@
+img {
+    vertical-align: middle;
+    border-radius: 50%;
+    border-style: none;
+    box-shadow: 1px -1px 20px 2px #0f0f13;
+}
+
+#profile-pic-div{
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+hr{
+  box-shadow: 9px 0px 11px 2px #0905ff;
+}
+
+h3{
+  font-size: 2.75rem;
+  font-family: none;
+    /* text-shadow: 2px 6px 6px #d6d6d6; */
+  color: #ff4700;
+}
+
+h5{
+  font-family: none;
+}
