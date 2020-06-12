@@ -111,10 +111,7 @@
                          };
             var contactFormatForChat = {contactID: friend.ID, contactName: friend.name, status: friend.status};
             createContactAndChatBox(friend, contactFormatForChat, messageEle);
-            // var contact = createContactFor(friend);
-            // var chatBox = createNewChatfor(contactFormatForChat);
-            // document.getElementById('contacts').appendChild(contact);
-            // document.getElementById('chats-container').appendChild(chatBox);
+
           }
         });
         availableChats.push(friendId);
@@ -142,11 +139,6 @@
       });
 
 
-      // var details = [{name: 'manik', status: 'Away', ID:'123123'}, {name: 'hanuman', status: 'Online', ID:'123124'}, {name: 'Vinayaka', status: 'AlwaysON', ID:'999999'}]
-      // for(var i=0; i<details.length; i++){
-      //   var contact = createContactFor(details[i]);
-      //   document.getElementById('contacts').appendChild(contact);
-      // }
 
       $(document).ready(function(){
         var currentActiveChat = null;
@@ -157,9 +149,6 @@
           currentContactHeader = $(this);
           var contactID = $(this).prop('id');
           var ID = contactID.split('-')[1];
-          // var contactName = $(this).children()[0].children[0].children[0].children[0].children[0].children[0].innerHTML;
-          // var status = $(this).children()[0].children[0].children[0].children[0].children[1].children[0].innerHTML;
-          // var newContact = {contactID: ID, contactName: contactName, status: status};
 
           var chatID = 'chat-'+ID;
           if(currentActiveChat)
@@ -182,15 +171,6 @@
           $('#contact-'+ID).children().children().children().children()[1].children[0].innerHTML = "";
           // currentActiveChat.children().children().children().children()[1].children[0].innerHTML = "";
         });
-
-        // $(document).on('hover', '.contact-header', function(){
-        // // $('.contact-header').hover(function(){
-        //   $(this).css({'cursor':'pointer'});
-        //   $(this).addClass('highlight');
-        // }, function(){
-        //   $(this).css({'cursor': 'auto'});
-        //   $(this).removeClass('highlight');
-        // });
 
         $(document).on('mouseover', '.contact-header', function(){
           // $(this).css({'cursor':'pointer'});
@@ -229,19 +209,21 @@
 
           var friendId = arr[arr.length-1];
           socket.emit('i-am-typing', {from: myID, to: friendId});
-          // var chatBody = $('#chat-body-for-'+friendId);
-          // var typingEle = createTypingEle();
-          // chatBodyDOM = document.getElementById('chat-body-for-'+friendId);
-          // chatBodyDOM.children[0].children[0].appendChild(typingEle);
-            // alert(ID);
         });
         socket.on('somebody-is-typing', function(data){
           var senderId = data.from;
+          if($('#typing-loader-div').length > 0){
+            return;
+          }
           $('#typing-loader-div').remove();
+
           var typingEle = createTypingEle();
           if(availableChats.indexOf(senderId) > -1 && $('#chat-'+senderId).hasClass('active')){
             var chatBodyDOM = document.getElementById('chat-body-for-'+senderId);
             chatBodyDOM.children[0].children[0].appendChild(typingEle);
+            $('#typing-loader-div').fadeOut(1000, function(){
+              $('#typing-loader-div').remove();
+            })
             $('#chat-body-for-'+senderId).scrollTop($('#chat-body-for-'+senderId).children().children().height());
           }
 
