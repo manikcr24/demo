@@ -89,7 +89,6 @@
 						url:'/userverify',
 						data:{email:email},
 						success:function(result){
-							console.log('RETURN from userverify '+ JSON.stringify(result));
               if(result.success != 0){
                 $('#invalidEmail').show();
                 $('#inputEmail').addClass('is-invalid');
@@ -123,7 +122,6 @@
 						url:'/otp',
 						data:{email:$('#inputEmail').val()},
 						success:function(result){
-							console.log('RETURN from changepassword'+ JSON.stringify(result));
               OTPValue = result.value;
 						}
 					});
@@ -142,9 +140,6 @@
 						url:'/otpvalidator',
 						data:{OTP: enteredOTP, actualOTP: OTPValue},
 						success:function(result){
-							console.log('RETURN from otpvalidator'+ JSON.stringify(result));
-              // alert(result.success);
-              console.log(result.success);
               if(result.success == 1){
                 $('#submit-button').removeAttr('disabled');
                 $('#invalid-otp').hide();

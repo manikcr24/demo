@@ -9,7 +9,9 @@
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
 
     <script src="/scripts/script1.js" charset="utf-8"></script>
+    <!-- <script src="/scripts/global-constants.js" charset="utf-8"></script> -->
     <link rel="stylesheet" href="/styles/style1.css">
+    <link rel="stylesheet" href="/styles/circle-loader.css">
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
       var socket;
@@ -55,7 +57,7 @@
           <div class="container-fluid" id="contacts-header">
             <div class="row">
               <div class="col-md-12">
-                <h4>CONTACTS</h4>
+                <h4>Contacts</h4>
               </div>
               <div class="input-group">
                 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
@@ -83,10 +85,12 @@
       var thisIsMyID = myID;
 
       function createContactAndChatBox(friend, contactFormatForChat, messageEle) {
-        var contact = createContactFor(friend);
+        var contact = createContactFor(friend, messageEle);
         var chatBox = createNewChatfor(contactFormatForChat);
         if(messageEle){
           chatBox.children[1].children[0].children[0].appendChild(messageEle); // appendChild(messageEle);
+          // add message counter as 1
+          // $('#contact-'+friend.ID).children().children().children().children()[1].children[0].innerHTML = 1;
         }
         $('#contacts').prepend(contact);
         // document.getElementById('contacts').appendChild(contact);
@@ -99,16 +103,12 @@
           type: 'GET',
           url: '/users/'+friendId,
           success: function(response){
-            // alert(JSON.stringify(response));
-            // console.log(JSON.stringify(response));
             response = response[0];
             var friend = { name: response.name,
                            status: 'Unknown',
                            ID: response._id,
                            friends: response.friends
                          };
-            // console.log(JSON.stringify(friend));
-            // alert(JSON.stringify(friend));
             var contactFormatForChat = {contactID: friend.ID, contactName: friend.name, status: friend.status};
             createContactAndChatBox(friend, contactFormatForChat, messageEle);
             // var contact = createContactFor(friend);
@@ -137,7 +137,6 @@
 
       $(document).ready(function(){
         socket = io();
-        // console.log(socket);
         socket.emit('userloggedin', {id: myID});
 
       });
@@ -161,7 +160,7 @@
           // var contactName = $(this).children()[0].children[0].children[0].children[0].children[0].children[0].innerHTML;
           // var status = $(this).children()[0].children[0].children[0].children[0].children[1].children[0].innerHTML;
           // var newContact = {contactID: ID, contactName: contactName, status: status};
-          //alert(data);
+
           var chatID = 'chat-'+ID;
           if(currentActiveChat)
              currentActiveChat.removeClass('active');
@@ -208,7 +207,9 @@
           evt.preventDefault();
           var inpFieldEle = $(this).children()[0].children[0];
           var message = inpFieldEle.value;
-          // alert(message);
+          if(message==null || message == ""){
+            return;
+          }
           var sentMessage = createSenderMessage(message);
           var arr = $(this).children().children().prop('id').split('-');
 
@@ -223,13 +224,35 @@
           $('#contacts').prepend(contactToBeShiftedUp);
         });
 
+        $(document).on('input', '.message-sender-form', function(evt) {
+          var arr = $(this).children().children().prop('id').split('-');
+
+          var friendId = arr[arr.length-1];
+          socket.emit('i-am-typing', {from: myID, to: friendId});
+          // var chatBody = $('#chat-body-for-'+friendId);
+          // var typingEle = createTypingEle();
+          // chatBodyDOM = document.getElementById('chat-body-for-'+friendId);
+          // chatBodyDOM.children[0].children[0].appendChild(typingEle);
+            // alert(ID);
+        });
+        socket.on('somebody-is-typing', function(data){
+          var senderId = data.from;
+          $('#typing-loader-div').remove();
+          var typingEle = createTypingEle();
+          if(availableChats.indexOf(senderId) > -1 && $('#chat-'+senderId).hasClass('active')){
+            var chatBodyDOM = document.getElementById('chat-body-for-'+senderId);
+            chatBodyDOM.children[0].children[0].appendChild(typingEle);
+            $('#chat-body-for-'+senderId).scrollTop($('#chat-body-for-'+senderId).children().children().height());
+          }
+
+        });
+
         socket.on('gotMessage', function(data){
-          // alert('got message');
+          $('#typing-loader-div').remove();
           var senderId = data.from;
           var message = data.message;
           var messageEle = createReceivedMessage(message);
-          // console.log(messageEle);
-          // if(chatBody)
+
           if(availableChats.indexOf(senderId) > -1){
               var chatBody = document.getElementById('chat-body-for-'+senderId);
               chatBody.children[0].children[0].appendChild(messageEle);
@@ -242,28 +265,27 @@
               currentMessageCount += 1;
               if( !$('#chat-'+senderId).hasClass('active') ){
                 $('#contact-'+senderId).children().children().children().children()[1].children[0].innerHTML = currentMessageCount;
+                notificationSound();
               }
               var contactToBeShiftedUp = $('#contact-'+senderId);
               $('#contact-'+senderId).remove();
               $('#contacts').prepend(contactToBeShiftedUp);
           } else {
             createContactAndChatBoxFor(senderId, messageEle);
-            // var contactNow = $('contact-'+senderId)
-            // alert('chat does not exist');
+
           }
         });
 
         $(document).on('click', '.un-friend-button', function(evt){
           var id = $(this).prop('id').split('-')[1];
-          //alert('Unfriend - '+id );
+
           var thisButton = $(this);
           thisButton.prop('disabled', true);
           $.ajax({
             type: 'DELETE',
             url: '/users/'+myID+'/friends/'+id,
             success: function(response){
-              // console.log(JSON.stringify(response));
-              // alert(JSON.stringify(response));
+
               availableChats.splice(availableChats.indexOf(id), 1);
               // availableChats.push(result._id);
               thisButton.removeClass('btn-warning');
@@ -281,18 +303,14 @@
 
         $(document).on('click', '.add-friend-button', function(evt){
           var id = $(this).prop('id').split('-')[2];
-          // alert(id);
 
           var thisButton = $(this);
           thisButton.prop('disabled', true);
           $.ajax({
-            //type: 'GET',
             type: 'POST',
-            // url: '/users/'+myID+'/addfriend/'+id,
             url: '/users/'+myID+'/friends',
             data: {friendID: id},
             success: function(result){
-              // alert('got response '+JSON.stringify(result));
               if(result.success && result.success == false)
                 return;
               else{
@@ -376,7 +394,6 @@
 						url:'/showusers',
 						data:{keyword: searchKeyword},
 						success:function(response){
-							// console.log('RETURN from /showusers'+ JSON.stringify(response));
               var result = response.arr;
               $('#searchResults').empty();
               for(var i=0;i<result.length;i++){
@@ -408,7 +425,6 @@
         });
 
         $("#exampleModalCenter").on('hidden.bs.modal', function(){
-            //alert("Hello World!");
             searchResults = [];
             $('#searchResults').empty(); // = [];
         });

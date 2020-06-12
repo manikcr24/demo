@@ -117,10 +117,10 @@ var renderUserAt = function(req, res){
       req.session.username = result.name;
       req.session.email = result.email;
       req.session.userId = result._id;
+      res.render('profile', {data: req.session});
     } else{
       res.send(req.params.id + " user doesn't exist");
     }
-    res.render('profile', {data: req.session});
 	}).catch(function(err){
     res.send(req.params.id + " user doesn't exist");
   });
@@ -219,7 +219,20 @@ var deleteFriend = function(req, res) {
       console.log('friend does not exist');
     }
   })
+}
 
+var forgotPasswordReset = function(req, res){
+  var email = req.body.email;
+  var newPassword = req.body.newPassword;
+  user_password.findOne({email: email}, function(err){
+    console.log('IN FindOne '+err );
+  }).then(function(doc){
+    doc.password = newPassword;
+    doc.save().then(function(err){
+      console.log('PASSWORD UPDATED');
+      res.send({success: 1})
+    });
+  });
 }
 
 var showUsers = function(req, res){
@@ -254,6 +267,7 @@ var getusers = function(req, res){
   })
 }
 
+
 var deleteUser = function(req, res){
   user_info.findOneAndDelete({_id: req.params.id}, function(err, doc){
     if(err){
@@ -275,4 +289,4 @@ var deleteUser = function(req, res){
     }
   });
 }
-module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser};
+module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser, forgotPasswordReset: forgotPasswordReset};

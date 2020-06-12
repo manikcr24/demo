@@ -42,6 +42,15 @@ io.on('connection', function(socket){
     }
 
   });
+  socket.on('i-am-typing', function(data) {
+    var fromSocketId = socket.id;
+    var from = data.from;
+    if(userSocketMap[data.to]){
+        var toSocketId = userSocketMap[data.to];
+        console.log('friend is online');
+        io.sockets.to(toSocketId).emit('somebody-is-typing', data);
+    }
+  });
 })
 
 
@@ -66,7 +75,7 @@ function OTPGenerator(){
 
 app.get('/', function(req, res) {
   console.log('get request on /')
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/html/index.html');
 });
 
 
@@ -102,6 +111,14 @@ app.get('/logout', function(req, res){
   res.redirect('/login');
 });
 
+app.get('/forgotpassword', function(req, res){
+  res.sendFile(__dirname + '/html/forgotpassword.html');
+})
+app.post('/forgotpassword', urlencodedParser, function(req, res){
+  console.log(req.body);
+  databaseoperations.forgotPasswordReset(req, res);
+  // res.json({success: 1})
+})
 
 app.get('/signup', function(req, res) {
   console.log("get request at /signup");
@@ -163,7 +180,8 @@ app.get('/profile/:id', function(req, res){
 })
 
 app.get('/profile', function(req, res){
-  res.render('profile');
+  var data = {name: 'Manik Cheruku', role: 'Software Engineer', phone: 7036722360, email: 'manik.cr24@gmail.com'}
+  res.render('profile', data);
 })
 
 app.get('/showusers', function(req, res){

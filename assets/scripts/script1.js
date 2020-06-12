@@ -1,3 +1,19 @@
+function createTypingEle(){
+  var messageItem =  createRow();
+  messageItem.classList.add('message-item');
+  messageItem.setAttribute('id', 'typing-loader-div');
+
+  var colMD12 = createColMD(12);
+  var typingLoader = document.createElement('div');
+  typingLoader.classList.add('left');
+  typingLoader.setAttribute('id', 'typing-loader');
+
+  messageItem.appendChild(colMD12);
+  colMD12.appendChild(typingLoader);
+
+  return messageItem;
+}
+
 function createSearchResult(data){
   var searchResult = createRow();
   searchResult.classList.add('search-result');
@@ -138,7 +154,7 @@ function createRow(){
   row.classList.add('row');
   return row;
 }
-function createContactFor(data){
+function createContactFor(data, messageEle){
   var contactHeader = createRow();
   contactHeader.classList.add('contact-header');
   contactHeader.setAttribute('id','contact-'+data.ID);
@@ -167,7 +183,10 @@ function createContactFor(data){
   var span = document.createElement('span');
   span.classList.add('badge');
   span.classList.add('badge-dark');
-  // span.innerHTML = '9';
+  if(messageEle){
+    span.innerHTML = '1';
+    notificationSound();
+  }
 
 
   contactHeader.appendChild(colMD12);
@@ -218,4 +237,16 @@ function createReceivedMessage(message) {
   messageDiv.appendChild(messageEle);
 
   return row;
+}
+
+
+function notificationSound() {
+  var sound = document.createElement('audio');
+  sound.src = '/audio/notification-sounds/bell.mp3';
+  sound.setAttribute("preload", "auto");
+  sound.setAttribute("controls", "none");
+  sound.style.display = "none";
+  document.body.appendChild(sound);
+  sound.play();
+
 }
