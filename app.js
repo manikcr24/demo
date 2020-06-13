@@ -17,14 +17,29 @@ var io = require('socket.io')(http);
 
 // var sockets = [];
 var userSocketMap = {};
+var socketUserMap = {};
 
 io.on('connection', function(socket){
   // console.log(socket.id);
+
+  socket.on('disconnect', function(data) {
+    console.log(socket.id+ ' just went offline...');
+    var userId = socketUserMap[socket.id];
+    var socketId = socket.id;
+
+    delete userSocketMap[userId];
+    delete socketUserMap[socketId];
+    console.log('UserSocketMap : '+JSON.stringify(userSocketMap));
+    console.log('socketUserMap : '+JSON.stringify(socketUserMap));
+  });
+
   socket.on('userloggedin', function(data){
     // sockets.push({userId: data.id, socketId: socket.id});
     userSocketMap[data.id] = socket.id;
+    socketUserMap[socket.id] = data.id;
     // console.log('user data ' +JSON.stringify(sockets));
     console.log('userSocketMap ' +JSON.stringify(userSocketMap));
+    console.log('socketUserMap : '+JSON.stringify(socketUserMap));
   });
 
   socket.on('send-message', function(data){
@@ -34,11 +49,12 @@ io.on('connection', function(socket){
     if(userSocketMap[data.to]){
         var toSocketId = userSocketMap[data.to];
         console.log('friend is online');
+        data.status = 1;
         io.sockets.to(toSocketId).emit('gotMessage', data);
     }
     else {
-      console.log('Friend is not online');
-      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: 'ServerResponse: User is offline currently'});
+      console.log('Friend is Offline');
+      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: 'ServerResponse: User is offline currently', status: 0});
     }
 
   });
@@ -131,6 +147,14 @@ app.post('/signup', urlencodedParser, function(req, res) {
   // res.redirect('/home');
 });
 
+app.get('/getstatus/:id', function(req, res){
+  console.log('this is getStatus/id');
+  var status = 0; //offline
+  if(userSocketMap[req.params.id]){
+    status = 1; //online
+  }
+  res.json({status: status});
+})
 
 app.get('/home', function(req, res){
   // res.send("<h1>"+req.session.username+"</h1>")

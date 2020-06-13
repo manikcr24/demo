@@ -108,10 +108,7 @@ i,p{
   /* box-shadow: inset 1px 1px 20px 10px #999cffb8; 776eff */
   box-shadow: inset 1px 1px 20px 10px #776eff;
 }
-.box-shadow-login{
-  /* box-shadow:  */
-  box-shadow: 0px 0px 20px 4px #5252cc;
-}
+
 .font-12{
   font-size: 17px;
 }

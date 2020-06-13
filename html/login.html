@@ -10,6 +10,8 @@
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/styles/login-styles.css">
+    <link rel="stylesheet" href="/styles/style1.css">
     <title>Login</title>
   </head>
   <style media="screen">
@@ -18,10 +20,25 @@
     }
   </style>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="row" id="dummy"> <!-- dummy -->
         <div class="col-md-12">
-
+          <nav class="navbar navbar-expand-lg navbar-dark blue-nav">
+            <a class="navbar-brand" href="#">ChatApp2</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="/signup">Signup</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/login">Login</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
         </div>
       </div>
 
@@ -30,7 +47,7 @@
         <div class="col-md-6 box-shadow-login">
           <div class="row">
             <div class="col-md-12" align="center">
-              <h1>Login</h1>
+              <h1 id='login'>Login</h1>
             </div>
           </div>
           <form action="" method="post">

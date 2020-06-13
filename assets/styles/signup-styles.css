@@ -1,0 +1,20 @@
+.signup-form-div {
+    border-radius: 18px;
+    margin-left: 17.5%;
+    margin-top: 4%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 33px;
+    padding-bottom: 52px;
+    box-shadow: 0px 0px 20px 4px #1077f7;
+    width: 66%;
+}
+body{
+  /* background-color: #000;
+  color: #fff; */
+}
+
+h1#signup{
+  padding-right: 42px;
+  font-family: none;
+}
