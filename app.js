@@ -9,13 +9,12 @@ var databaseoperations = require('./controllers/databaseoperations.js');
 var mailsender = require('./controllers/mailsender.js');
 
 
-
+var PORT = process.env.PORT || 3000;
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 
-// var sockets = [];
 var userSocketMap = {};
 var socketUserMap = {};
 
@@ -247,8 +246,13 @@ app.delete('/users/:userid/friends/:friendId', function(req, res){
   console.log('delete request on /users/'+req.params.userid+'/friends/'+req.params.friendId+'/');
   console.log(req.params);
   databaseoperations.deleteFriend(req, res);
+});
+
+app.get('/:any', function(req, res){
+  console.log('In any');
+  res.redirect('/');
 })
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(PORT, function(){
+  console.log('listening on *:='+PORT);
 });
