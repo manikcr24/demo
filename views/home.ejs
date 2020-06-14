@@ -148,7 +148,7 @@
               $('#chat-header-for-'+id).children().children()[1].innerHTML = "Online";
             }
             else{
-              $('#chat-header-for-'+id).children().children()[1].innerHTML = "Unavailable";
+              $('#chat-header-for-'+id).children().children()[1].innerHTML = "Offline";
             }
           }
         });
@@ -251,12 +251,14 @@
           var message = data.message;
           var messageEle = createReceivedMessage(message);
           if(data.status!=null && data.status == 0){
-            $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Unavailable";
-            $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', true);
+            if($('#chat-header-for-'+senderId).length>0)
+              $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Offline";
+            // $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', true);
           }
           else {
-            $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Online";
-            $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', false);
+            if($('#chat-header-for-'+senderId).length > 0)
+              $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Online";
+            // $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', false);
           }
           if(availableChats.indexOf(senderId) > -1){
               var chatBody = document.getElementById('chat-body-for-'+senderId);

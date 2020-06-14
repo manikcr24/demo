@@ -3,7 +3,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    animation: typing 1s linear 1 alternate;
+    animation: typing 1s linear 2 alternate;
     position: relative;
     /* left: -3rem; */
     margin: 0 auto;
