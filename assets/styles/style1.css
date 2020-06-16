@@ -3,9 +3,13 @@
   max-height: 82vh;
   /* border-right: 3px solid #0672bf; */
 }
+span#spanner {
+    color: yellow;
+}
 .contact-header {
   /* box-shadow: -2px 1px 3px 0px #444444; */
   border-bottom: 1px solid #daebfb;
+  font-weight: 200;
 }
 .chat-header{
   /* min-height: 10vh;
@@ -106,11 +110,13 @@ i,p{
   /* box-shadow: -1px 0px 4px 2px #188bef; */
   border-radius: 8px;
   /* box-shadow: inset 1px 1px 20px 10px #999cffb8; 776eff */
-  box-shadow: inset 1px 1px 20px 10px #776eff;
+  /* box-shadow: inset 1px 1px 20px 10px #776eff; */
+  font-weight: 500;
 }
 
-.font-12{
+p.font-12{
   font-size: 17px;
+  margin-bottom: -2px;
 }
 
 .row.search-result {
@@ -132,4 +138,14 @@ i,p{
 
 .add-friend-button{
 
+}
+
+#friends-tab-opener{
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+  /* vertical-align: middle; */
+  /* height: 100%; */
+  /* color: #007bff;
+  border-color: #007bff; */
 }

@@ -14,15 +14,19 @@ function createTypingEle(){
   return messageItem;
 }
 
-function createSearchResult(data){
+function createFriendRequestElement(data){
   var searchResult = createRow();
   searchResult.classList.add('search-result');
+  searchResult.classList.add('friend-request')
   searchResult.setAttribute('id', 'search-result-'+data.id);
 
   var colMD8 = createColMD(8);
   var p = document.createElement('p');
   p.classList.add('font-12');
   p.innerHTML = data.name;
+
+  var small = document.createElement('small');
+  small.innerHTML = data.email;
 
   var colMD4 = createColMD(4);
   var button = document.createElement('button');
@@ -34,6 +38,39 @@ function createSearchResult(data){
 
   colMD4.appendChild(button);
   colMD8.appendChild(p);
+  colMD8.appendChild(small);
+
+  searchResult.appendChild(colMD8);
+  searchResult.appendChild(colMD4);
+
+  return searchResult;
+}
+
+
+function createSearchResult(data){
+  var searchResult = createRow();
+  searchResult.classList.add('search-result');
+  searchResult.setAttribute('id', 'search-result-'+data.id);
+
+  var colMD8 = createColMD(8);
+  var p = document.createElement('p');
+  p.classList.add('font-12');
+  p.innerHTML = data.name;
+
+  var small = document.createElement('small');
+  small.innerHTML = data.email;
+
+  var colMD4 = createColMD(4);
+  var button = document.createElement('button');
+  button.classList.add('btn');
+  button.classList.add('btn-primary');
+  button.classList.add('add-friend-button');
+  button.setAttribute('id', 'add-friend-'+data.id);
+  button.innerHTML = 'Add friend';
+
+  colMD4.appendChild(button);
+  colMD8.appendChild(p);
+  colMD8.appendChild(small);
 
   searchResult.appendChild(colMD8);
   searchResult.appendChild(colMD4);
@@ -51,6 +88,9 @@ function createSearchResultForUnfriend(data){
   p.classList.add('font-12');
   p.innerHTML = data.name;
 
+  var small = document.createElement('small');
+  small.innerHTML = data.email;
+
   var colMD4 = createColMD(4);
   var button = document.createElement('button');
   button.classList.add('btn');
@@ -61,6 +101,7 @@ function createSearchResultForUnfriend(data){
 
   colMD4.appendChild(button);
   colMD8.appendChild(p);
+  colMD8.appendChild(small);
 
   searchResult.appendChild(colMD8);
   searchResult.appendChild(colMD4);
@@ -238,6 +279,7 @@ function createReceivedMessage(message) {
 
   return row;
 }
+
 
 
 function notificationSound() {

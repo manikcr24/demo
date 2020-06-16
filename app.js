@@ -47,13 +47,13 @@ io.on('connection', function(socket){
     var from = data.from;
     if(userSocketMap[data.to]){
         var toSocketId = userSocketMap[data.to];
-        console.log('friend is online');
+        // console.log('friend is online');
         data.status = 1;
         io.sockets.to(toSocketId).emit('gotMessage', data);
     }
     else {
       console.log('Friend is Offline');
-      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: 'ServerResponse: User is offline currently', status: 0});
+      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: '<b>ServerResponse:</b> Your friend is Offline. This message cannot be delivered. Ask your friend to come online', status: 0});
     }
 
   });
@@ -62,10 +62,21 @@ io.on('connection', function(socket){
     var from = data.from;
     if(userSocketMap[data.to]){
         var toSocketId = userSocketMap[data.to];
-        console.log('friend is online');
+        // console.log('friend is online');
         io.sockets.to(toSocketId).emit('somebody-is-typing', data);
     }
   });
+
+  socket.on('send-friend-request-to', function(data) {
+    if(userSocketMap[data.friendId]){
+        var toSocketId = userSocketMap[data.friendId];
+        // console.log('friend is online');
+        io.sockets.to(toSocketId).emit('you-got-a-friend-request', {requestFrom: data.myId, requestTo: data.friendId});
+    }
+  })
+
+
+
 })
 
 
@@ -220,6 +231,22 @@ app.get('/users/:id', function(req, res){
   console.log('RETRIEVING INFO FOR : '+req.params.id);
   databaseoperations.getInfoOf(req, res);
 });
+
+app.get('/users/:id/requestlist', function(req, res){
+  console.log('RETRIEVING REQUEST LIST ');
+  databaseoperations.getFriendRequestList(req, res);
+})
+
+app.post('/users/:id/requestlist/', function(req, res){
+  console.log('Adding '+req.body.friendId+' to '+req.params.id+'\'s requestList');
+  databaseoperations.addToRequestList(req, res);
+});
+
+app.delete('/users/:id/requestlist/:friendId', function(req, res){
+  console.log('Deleting '+req.params.friendId+' from '+req.params.id+'\'s requestList');
+  databaseoperations.deleteFromRequestList(req, res);
+})
+
 app.delete('/users/:id', function(req, res){
   console.log('Delete request for user '+req.params.id);
   databaseoperations.deleteUser(req, res);

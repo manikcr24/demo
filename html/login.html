@@ -109,6 +109,17 @@
           evt.preventDefault();
           var password = $('#userpassword').val();
           var email = $('#useremail').val();
+          if(!validateEmail(email) || validatedEmail != email){
+            emailValidated = false;
+            $('#emailValidatorSpinner').hide();
+            $('#invalidEmail').show();
+            // $('#validEmailLogo').hide();
+            $('#useremail').addClass('is-invalid');
+            $('#useremail').removeClass('is-valid');
+            emailValidated = false;
+            $('#form-submit').prop('disabled', true);
+            return;
+          }
           $.ajax({
 						type:'GET',
 						url:'/passwordverify',
@@ -126,12 +137,37 @@
 					});
 
 
-        })
+        });
+
+        function validateEmail(elementValue){
+           var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+           return emailPattern.test(elementValue);
+        }
 
         $('#userpassword').focus(function(){
+        // $('#useremail').on('input', function(){
+
           var email = $('#useremail').val();
+          // if(!validateEmail(email)){
+          //   $('#invalidEmail').show();
+          //   return;
+          // }
+          // if(emailValidated && validatedEmail != email)
+          //   return;
           if(emailValidated && validatedEmail == email)
             return;
+
+          // if(email.indexOf('.com') < 0) {
+          //   emailValidated = false;
+          //   $('#emailValidatorSpinner').hide();
+            // $('#invalidEmail').show();
+            // $('#validEmailLogo').hide();
+            // $('#useremail').addClass('is-invalid');
+            // $('#useremail').removeClass('is-valid');
+          //   emailValidated = false;
+          //   $('#form-submit').prop('disabled', true);
+          //   return;
+          // }
 
           $('#emailValidatorSpinner').show();
           $('#validEmailLogo').hide();

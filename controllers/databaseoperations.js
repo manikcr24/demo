@@ -169,6 +169,21 @@ var addContact = function(req, res){
         result.friends.push(friendID);
         var item = result.save();
         console.log('Added '+friendID+' as a friend');
+
+        //put this id into requestlist of friend
+        user_info.findOne({_id: friendID}, function(err, result){
+          if(err){
+            console.log(err)
+          }
+          else{
+            if(result.requestedYou.indexOf(myID)<0 && result.friends.indexOf(myID)<0){
+              result.requestedYou.push(myID);
+              var item = result.save();
+              console.log('Added '+friendID+' into Request list of '+ myID);
+            }
+          }
+        });
+
     } else{
       console.log('friend already exists');
       req.friendExists = true;
@@ -186,6 +201,8 @@ var addContact = function(req, res){
       }
     });
   });
+
+
 }
 
 var deleteFriend = function(req, res) {
@@ -246,14 +263,16 @@ var showUsers = function(req, res){
       res.json({status: "error", error: err});
     }
     // console.log(result)
-    if(result != null){
-      var resArr = []
-      for(var i=0;i<result.length; i++){
-        resArr.push(result[i].name);
-      }
-      // console.log(resArr);
+    // if(result != null){
+    //   var resArr = []
+    //   for(var i=0;i<result.length; i++){
+    //     resArr.push(result[i].name);
+    //   }
+    // }
+    else{
+      console.log(keyWord.length+' letter ' +result);
+      res.json({arr: result});
     }
-    res.json({arr: result});
 
 	});
 
@@ -289,4 +308,70 @@ var deleteUser = function(req, res){
     }
   });
 }
-module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser, forgotPasswordReset: forgotPasswordReset};
+
+var getFriendRequestList = function(req, res) {
+  user_info.find({_id: req.params.id}, function(err,result){
+    if(err) {
+      res.json({status: "error", error: err});
+    }
+    var friendRequestList;
+    if(result != null){
+      friendRequestList = result[0].requestedYou;
+    }
+    res.json({friendRequestList: friendRequestList});
+
+  });
+}
+
+var deleteFromRequestList = function(req, res) {
+
+  var userId = req.params.id;
+  var friendId = req.params.friendId;
+
+  user_info.findOne({_id: userId}, function(error, doc) {
+    if(error){
+      res.json({status: "error", error: err});
+    }
+    else if(!doc){
+      res.json({result: 'Invalid ID'});
+    }
+    else{
+      var requestList = doc.requestedYou;
+      var friendIndex = requestList.indexOf(friendId);
+      if(friendIndex > -1){
+        var deletedrequest= doc.requestedYou.splice(friendIndex, 1);
+        doc.requestedYou = requestList;
+        doc.save(function(error){
+          res.json({deletedrequest: deletedrequest, doc: doc});
+        });
+      } else{
+        res.json({status: 'Failed to delete friend, ID does not exist'});
+        console.log('friend does not exist');
+      }
+    }
+  })
+
+}
+
+var addToRequestList = function(req, res) {
+  var userId = req.params.id;
+  var friendId = req.body.friendId;
+
+  // var myID = req.params.myID;
+  var friendID = req.body.friendID;
+  console.log('IN addToRequestList');
+  user_info.findOne({_id: userId}, function(err, result) {
+    if(result.requestedYou.indexOf(friendId) < -1){
+        result.requestedYou.push(friendID);
+        var item = result.save();
+        console.log('Added '+friendID+' into request list');
+
+        //put this id into requestlist of friend
+    } else{
+      console.log('friend already exists');
+      req.friendExists = true;
+    }
+  })
+
+}
+module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser, forgotPasswordReset: forgotPasswordReset, getFriendRequestList: getFriendRequestList, addToRequestList: addToRequestList, deleteFromRequestList: deleteFromRequestList};

@@ -1,4 +1,8 @@
-> 4.1.1    11/06/2020 UI and Functionality. Added STATUS feature. It shows user status as Online/Unavailable.
+> 4.3    16/06/2020  Added new feature; friend request section. No longer missing friends when user is offline.
+
+> 4.2	   15/06/2020   UI changes; fixed few bugs, added some new functionality
+
+> 4.1.1  11/06/2020 UI and Functionality. Added STATUS feature. It shows user status as Online/Unavailable.
 
 > 4.1    11/06/2020 UI and Functionality. Added notification sound on message. Added message typing event(typing loaders). Added forgotpassword page
 
