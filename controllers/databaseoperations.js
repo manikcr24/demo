@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var dateTime = require('node-datetime');
 var Schema = mongoose.Schema;
 var Model = mongoose.model;
 const MONGO_URL = 'mongodb://manik:admin123@ds245885.mlab.com:45885/chatapp2';
@@ -11,7 +12,6 @@ mongoose.connect(MONGO_URL, {
 var userSchema = new Schema({
 		name: String,
 		email: String,
-		// password: String,
 	  friends: Array,
     requestedYou: Array,
     youRequested: Array
@@ -22,11 +22,16 @@ var userPassword = new Schema({
   password: String
 });
 
+var lastSeenSchema = new Schema({
+  userId: String,
+  lastSeen: Object
+});
+
 
 //Documents / Tables
 var user_info =  Model('user_info', userSchema);
 var user_password = Model('user_password', userPassword);
-
+var last_seen = Model('last_seen', lastSeenSchema);
 
 //databaseoperations
 var saveUserToDatabase = function(req, res) {
@@ -36,7 +41,6 @@ var saveUserToDatabase = function(req, res) {
   var userDetails={
     name: reqBody.username,
     email: reqBody.useremail,
-    // password: reqBody.userpassword,
     friends: [],
     youRequested: [],
     requestedYou: []
@@ -54,10 +58,23 @@ var saveUserToDatabase = function(req, res) {
         console.log(err);
     }
   });
-  user_info(userDetails).save(function(error){
+  user_info(userDetails).save(function(error, item){
       if(error)
         throw error;
       console.log('Item saved successfully...');
+
+      //create entry in last seen table
+      var timeNow = dateTime.create();
+      var formattedTimeNow = timeNow.format('d/m/Y H:M');
+      var dateTimeArr = formattedTimeNow.split(' ');
+      var lastSeen = {date: dateTimeArr[0], time: dateTimeArr[1]};
+
+      var lastSeenInfo = {userId: item._id, lastSeen: lastSeen}
+
+      last_seen(lastSeenInfo).save(function(err, lastSeenItem){
+        console.log('Stored last seen info for '+item._id+' as '+JSON.stringify(lastSeenItem));
+      });
+
       res.redirect('/login');
   });
 }
@@ -87,7 +104,6 @@ var verifyUser = function(email, req, res){
   user_info.findOne({email:email}, function(err,result){
     var success = 0;
 		if(err){
-      // throw err;
       res.json({status: "error", error: err});
     }
     if(result != null){
@@ -109,7 +125,6 @@ var renderUserAt = function(req, res){
   user_info.findOne({_id:req.params.id}, function(err,result){
     var success = 0;
 		if(err){
-      // throw err;
       res.json({status: "error", error: err});
     }
     if(result != null){
@@ -300,11 +315,16 @@ var deleteUser = function(req, res){
           res.json({status: "error", error: err});
         } else {
           // console.log('deleted user from table1 '+doc);
-          console.log('from table2 '+deletedUser);
-          res.json({details: doc, logins: deletedUser});
+          console.log('from table2 '+JSON.stringify(deletedUser));
+          last_seen.findOneAndDelete({userId: doc._id}, function(err, deletedLastSeen){
+            console.log(JSON.stringify(deletedLastSeen));
+            res.json({details: doc, logins: deletedUser, lastSeenInfo: deletedLastSeen});
+          });
           // return doc;
         }
       });
+
+
     }
   });
 }
@@ -361,10 +381,10 @@ var addToRequestList = function(req, res) {
   var friendID = req.body.friendID;
   console.log('IN addToRequestList');
   user_info.findOne({_id: userId}, function(err, result) {
-    if(result.requestedYou.indexOf(friendId) < -1){
-        result.requestedYou.push(friendID);
+    if(result.friends.indexOf(friendId)<0 && result.requestedYou.indexOf(friendId) < 0){
+        result.requestedYou.push(friendId);
         var item = result.save();
-        console.log('Added '+friendID+' into request list');
+        console.log('Added '+friendId+' into request list');
 
         //put this id into requestlist of friend
     } else{
@@ -372,6 +392,58 @@ var addToRequestList = function(req, res) {
       req.friendExists = true;
     }
   })
-
 }
-module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser, forgotPasswordReset: forgotPasswordReset, getFriendRequestList: getFriendRequestList, addToRequestList: addToRequestList, deleteFromRequestList: deleteFromRequestList};
+
+
+var modifyLastSeenInfo = function(userId, timeNow) {
+  var arr = timeNow.format('d/m/Y H:M').split(' ');
+  var date = arr[0];
+  var time = arr[1];
+  console.log('Modifying lastseen info of '+userId+' as '+date+' '+time);
+
+  try{
+    if(userId != null){
+      last_seen.findOne({userId: userId}, function(err, doc){
+        var lastSeen = {date: arr[0], time: arr[1]};
+        doc.lastSeen = lastSeen;
+        doc.save(function(err, res){
+          if(err){
+            console.log(err);
+          }
+        });
+      });
+    }
+  } catch(e){
+    console.log('Exception at modifyLastSeenInfo '+JSON.stringify(e));
+  }
+}
+
+var getLastSeenInfo = function(req, res){
+  var userId = req.params.id;
+  last_seen.findOne({userId: userId}, function(err, doc){
+    var lastSeen = doc.lastSeen;
+    var info = lastSeen.date+' '+lastSeen.time;
+    var dateTimeNow = dateTime.create();
+    var formattedDateTime = dateTimeNow.format('d/m/Y H:M');
+    var today = formattedDateTime.split(' ')[0]
+    if(lastSeen.date == today){
+      info = 'Today '+lastSeen.time
+    }
+    res.json({status: info});
+  });
+}
+
+var getLastSeenOf = function(userId){
+  last_seen.findOne({userId: userId}, function(err, doc){
+    var lastSeen = doc.lastSeen;
+    var info = lastSeen.date+' '+lastSeen.time;
+    var dateTimeNow = dateTime.create();
+    var formattedDateTime = dateTimeNow.format('d/m/Y H:M');
+    var today = formattedDateTime.split(' ')[0]
+    if(lastSeen.date == today){
+      info = 'Today '+lastSeen.time
+    }
+    return info;
+  });
+}
+module.exports = {userSchema:userSchema, saveUserToDatabase: saveUserToDatabase, verifyPassword: verifyPassword, verifyUser: verifyUser, renderUserAt: renderUserAt, showUsers: showUsers, getFriendsFor: getFriendsFor, getInfoOf: getInfoOf, addContact: addContact, deleteFriend: deleteFriend, getusers: getusers, deleteUser: deleteUser, forgotPasswordReset: forgotPasswordReset, getFriendRequestList: getFriendRequestList, addToRequestList: addToRequestList, deleteFromRequestList: deleteFromRequestList, modifyLastSeenInfo: modifyLastSeenInfo, getLastSeenInfo: getLastSeenInfo};

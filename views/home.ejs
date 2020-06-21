@@ -9,15 +9,22 @@
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
 
     <script src="/scripts/script1.js" charset="utf-8"></script>
+    <script src="/scripts/message-item-factory.js" charset="utf-8"></script>
     <script src="/scripts/ajax-calls.js" charset="utf-8"></script>
     <!-- <script src="/scripts/global-constants.js" charset="utf-8"></script> -->
     <link rel="stylesheet" href="/styles/style1.css">
+    <link rel="stylesheet" href="/styles/message-styles.css">
     <link rel="stylesheet" href="/styles/circle-loader.css">
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
       var socket;
       var myID;
       var availableChats = [];
+
+      var currentActiveChat = null;
+      var currentContactHeader = null;
+      var prevContactHeader = null;
+      var taggedContentPreviewEle;
     </script>
     <title>ChatApp.V2</title>
   </head>
@@ -136,11 +143,10 @@
 
 
       $(document).ready(function(){
-        var currentActiveChat = null;
-        var currentContactHeader = null;
-        var prevContactHeader = null;
         $(document).on('click', '.contact-header', function(){
+
           if(currentActiveChat && currentActiveChat.prop('id').split('-')[1] == $(this).prop('id').split('-')[1]){
+            getStatus($(this).prop('id').split('-')[1])
             return;
           }
         // $('.contact-header').click(function(){
@@ -189,18 +195,51 @@
           evt.preventDefault();
           var inpFieldEle = $(this).children()[0].children[0];
           var message = inpFieldEle.value;
+          var isTaggedMessage = false;
           if(message==null || message == ""){
-            return;
-          }
-          var sentMessage = createSenderMessage(message);
-          var arr = $(this).children().children().prop('id').split('-');
+            message = $(this).children().eq(1).children().eq(0)[0].value;
 
+            if(message==null || message == "")
+              return;
+            else{
+              inpFieldEle = $(this).children().eq(1).children().eq(0)[0];
+            }
+          }
+
+          // var arr = $(this).children().children().prop('id').split('-');
+          var arr =  $(this).parent().parent().prop('id').split('-');
           var ID = arr[arr.length-1];
           var chatBody = $('#chat-body-for-'+ID);
+
+          var sentMessage;
+          var taggedContentOwner;
+          var taggedMessageContent;
+
+          if($('#tagged-content-preview-for-'+ID).length > 0){
+            //data.taggedMessageContentSender, data.taggedMessageContent,  data.newMessage
+            taggedContentOwner = $('#tagged-content-preview-for-'+ID).children().eq(1)[0].innerHTML;
+            taggedMessageContent = $('#tagged-content-preview-for-'+ID).children().eq(2)[0].innerHTML;
+            var data = {taggedMessageContentSender:  taggedContentOwner, taggedMessageContent: taggedMessageContent, newMessage: message};
+            sentMessage = createSenderTaggedMessage(data);
+            isTaggedMessage = true;
+          } else{
+            sentMessage = createSenderMessage(message);
+          }
+
           chatBody.children().children()[0].appendChild(sentMessage);
           $('#chat-body-for-'+ID).scrollTop($('#chat-body-for-'+ID).children().children().height());
           inpFieldEle.value = '';
-          socket.emit('send-message', {to: ID, from: myID, message: message});
+          $('#tagged-content-preview-for-'+ID).remove();
+          var data = {to: ID, from: myID, message: message};
+          if(isTaggedMessage) {
+             //data.taggedMessageContentSender, data.taggedMessageContent,  data.newMessage
+             taggedContentOwner = (taggedContentOwner == "You")? ("<%= data.username %>") : taggedContentOwner;
+            var tdata = {taggedMessageContentSender: taggedContentOwner,taggedMessageContent: taggedMessageContent ,newMessage: message }
+            var taggedProps = {isTaggedMessage: true, taggedMsgData: tdata};
+            data.taggedProps = taggedProps;
+
+          }
+          socket.emit('send-message', data);
           var contactToBeShiftedUp = $('#contact-'+ID);
           $('#contact-'+ID).remove();
           $('#contacts').prepend(contactToBeShiftedUp);
@@ -245,16 +284,31 @@
           $('#typing-loader-div').remove();
           var senderId = data.from;
           var message = data.message;
-          var messageEle = createReceivedMessage(message);
+          var messageEle;
+          if(data.taggedProps && data.taggedProps.isTaggedMessage) {
+            var taggedMsgData = data.taggedProps.taggedMsgData;
+            var taggedMessageContentSender = taggedMsgData.taggedMessageContentSender;
+
+            taggedMsgData.taggedMessageContentSender = (taggedMessageContentSender == "<%=data.username %>")? "You" : taggedMessageContentSender;
+
+            messageEle = createReceivedTaggedMessage(taggedMsgData);
+          } else{
+              messageEle = createReceivedMessage(message);
+          }
+
           if(data.status!=null && data.status == 0){
-            if($('#chat-header-for-'+senderId).length>0)
+            if($('#chat-header-for-'+senderId).length>0){
               $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Offline";
+            }
             // $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', true);
           }
-          else {
+          else if(data.status == 1){
             if($('#chat-header-for-'+senderId).length > 0)
               $('#chat-header-for-'+senderId).children().children()[1].innerHTML = "Online";
             // $('#chat-footer-for-'+senderId).children().children().children().children().prop('disabled', false);
+          } else{
+              getStatus(senderId);
+              //logic here to notify user through mail when offline.
           }
           if(availableChats.indexOf(senderId) > -1){
               var chatBody = document.getElementById('chat-body-for-'+senderId);
@@ -490,6 +544,78 @@
             $('#searchResults').empty(); // = [];
         });
       });
+
+
+      $(document).ready(function(){
+        $(document).on('mouseover', '.message-item', function(){
+          $(this).children().children()[1].children[0].style.display = '';
+        });
+        $(document).on('mouseleave', '.message-item', function(){
+          $(this).children().children()[1].children[0].style.display = 'none';
+          $(this).children().children()[1].children[1].click();
+        })
+        // $(document).on('mouseover', '.contact-header', function(){
+        //   $(this).addClass('highlight');
+        // });
+      })
+
+      $(document).ready(function(){
+        $(document).on('click', '.tag-this-message', function(evt){
+          evt.preventDefault();
+          var ID = currentActiveChat.prop('id').split('-')[1];
+          var ele = $(this);
+          var messageContent = ele.parent().parent().parent().children().children()[0].innerHTML;
+          if(ele.parent().parent().parent().children().eq(0).children().length > 1){
+            messageContent =  ele.parent().parent().parent().children().children().eq(1).text();
+          }
+          var messageOwner = null;
+
+          if($('#tagged-content-preview-for-'+ID)){
+            $('#tagged-content-preview-for-'+ID).remove();
+          }
+
+          if(ele.parent().parent().parent().children().hasClass('right')){
+            messageOwner = 'You';
+          }
+          else{
+
+            var header = $('#chat-header-for-'+ID);
+            var messageOwner = header.children().children().html();
+          }
+
+          var footer = $('#chat-footer-for-'+ID);
+
+          var data = {messageContent: messageContent, messageOwner: messageOwner, currentActiveChatID:  ID};
+          taggedContentPreviewEle = createTaggedContentPreview(data);
+          footer.children().children().prepend(taggedContentPreviewEle);
+          // TODO: add auto focus on input (message sender);
+          $('#message-sender-for-'+ID).focus();
+          $('html').scrollTop($('#body-container').height());
+
+
+        });
+
+        $(document).on('click', '.close', function(evt){
+          // alert('clicked on close ')
+          $(this).parent().remove();
+        });
+
+
+        //delete this message
+        $(document).on('click', '.delete-this-message', function(evt){
+          var thisMessage = $(this);
+          // alert('this message will be deleted');
+          thisMessage.parent().parent().parent().parent().remove();
+        })
+
+
+        //copy this message to clip board
+        $(document).on('click', '.copy-this-message', function(evt){
+          var thisMessage = $(this);
+          copyToClipboard(thisMessage.parent().parent().parent().children().eq(0).children().eq(0).text());
+        })
+      })
+
     </script>
 
   </body>

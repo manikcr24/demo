@@ -3,7 +3,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var nodemailer = require('nodemailer');
-
+var dateTime = require('node-datetime');
 ///////////////////////////////
 var databaseoperations = require('./controllers/databaseoperations.js');
 var mailsender = require('./controllers/mailsender.js');
@@ -22,6 +22,7 @@ io.on('connection', function(socket){
   // console.log(socket.id);
 
   socket.on('disconnect', function(data) {
+    console.log('In Disconnecting SOCKET '+data.msg);
     console.log(socket.id+ ' just went offline...');
     var userId = socketUserMap[socket.id];
     var socketId = socket.id;
@@ -30,6 +31,11 @@ io.on('connection', function(socket){
     delete socketUserMap[socketId];
     console.log('UserSocketMap : '+JSON.stringify(userSocketMap));
     console.log('socketUserMap : '+JSON.stringify(socketUserMap));
+
+    var timeNow = dateTime.create();
+    // var formattedData = timeNow.format('d/m/Y H:M');
+
+    databaseoperations.modifyLastSeenInfo(userId, timeNow)
   });
 
   socket.on('userloggedin', function(data){
@@ -43,9 +49,15 @@ io.on('connection', function(socket){
 
   socket.on('send-message', function(data){
     console.log(data.message+' from '+data.from+'/n to '+data.to+'');
+    console.log(JSON.stringify(data));
     var fromSocketId = socket.id;
     var from = data.from;
-    if(userSocketMap[data.to]){
+    if(!userSocketMap[data.from]){
+      // io.sockets.to()
+
+      // TODO: add some logic to recreate a socket or destroy session.
+    }
+    /*else*/ if(userSocketMap[data.to]){
         var toSocketId = userSocketMap[data.to];
         // console.log('friend is online');
         data.status = 1;
@@ -53,7 +65,8 @@ io.on('connection', function(socket){
     }
     else {
       console.log('Friend is Offline');
-      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: '<b>ServerResponse:</b> Your friend is Offline. This message cannot be delivered. Ask your friend to come online', status: 0});
+      // var lastseen = getLastSeenOf(data.to);
+      io.sockets.to(fromSocketId).emit('gotMessage', {from: data.to, to: data.from, message: '<b>ServerResponse:</b> Your friend is Offline. This message cannot be delivered. Ask your friend to come online', status: 'findLastSeen'});
     }
 
   });
@@ -162,8 +175,11 @@ app.get('/getstatus/:id', function(req, res){
   var status = 0; //offline
   if(userSocketMap[req.params.id]){
     status = 1; //online
+    res.json({status: status});
+  }else{
+    databaseoperations.getLastSeenInfo(req, res);
   }
-  res.json({status: status});
+
 })
 
 app.get('/home', function(req, res){

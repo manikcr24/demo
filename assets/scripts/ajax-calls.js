@@ -62,8 +62,11 @@ function getStatus(id) {
       if(response.status == 1){
         $('#chat-header-for-'+id).children().children()[1].innerHTML = "Online";
       }
-      else{
+      else if(response.status == 0){
         $('#chat-header-for-'+id).children().children()[1].innerHTML = "Offline";
+      }
+      else{
+        $('#chat-header-for-'+id).children().children()[1].innerHTML = response.status;
       }
     }
   });
