@@ -48,8 +48,6 @@ io.on('connection', function(socket){
   });
 
   socket.on('send-message', function(data){
-    console.log(data.message+' from '+data.from+'/n to '+data.to+'');
-    console.log(JSON.stringify(data));
     var fromSocketId = socket.id;
     var from = data.from;
     if(!userSocketMap[data.from]){
@@ -154,7 +152,7 @@ app.get('/forgotpassword', function(req, res){
   res.sendFile(__dirname + '/html/forgotpassword.html');
 })
 app.post('/forgotpassword', urlencodedParser, function(req, res){
-  console.log(req.body);
+  // console.log(req.body);
   databaseoperations.forgotPasswordReset(req, res);
   // res.json({success: 1})
 })
