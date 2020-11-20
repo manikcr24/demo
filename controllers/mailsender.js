@@ -12,19 +12,6 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-// transporter.sendMail({
-//     from: 'ChatApp2 <criminalstories8@gmail.com>',
-//     to: 'manik.cr24@gmail.com',
-//     subject: 'OTP for ChatApp2',
-//     text: 'I hope this message gets through!',
-//     auth: {
-//         user: 'criminalstories8@gmail.com',
-//         refreshToken: '1//04HwqXTtFZOxqCgYIARAAGAQSNwF-L9Ir67QmOze0J_OD2n5HCe4NslRbTgvXKjCzC3VGyLAn3Bfw_klqVPhhpdPDpWUDvjP_neI',
-//         accessToken: 'ya29.a0AfH6SMCQFFubcPbam87g36gV8aLJKB5a0mf2EjfNmCt8j27kX764RCNKpWXZmXv5tvE61rIPe7wGaBu1Da7Efr4xMuSie-B2r5JtoE_tz1BoU85CLS_axXp9fZOAs1BvjZVXEAwOihOLEVfL_fz1QlbM679LNdlZJCE',
-//         expires: 1484314697598
-//     }
-// });
-
 var sendOtp = function(email, OTP) {
 
   transporter.sendMail({
@@ -47,14 +34,6 @@ var sendOtp = function(email, OTP) {
     }
   });
 
-
-  // transporter.sendMail(mailOptions, function(error, info){
-  //   if (error) {
-  //     console.log(error);
-  //   } else {
-  //     console.log('Email sent: ' + info.response);
-  //   }
-  // });
 }
 
 var sendMail = function() {
