@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var dateTime = require('node-datetime');
 var Schema = mongoose.Schema;
 var Model = mongoose.model;
-const MONGO_URL = 'mongodb://manik:admin123@ds245885.mlab.com:45885/chatapp2';
+const MONGO_URL = 'mongodb://*****:********@ds245885.mlab.com:45885/chatapp2';
 
 mongoose.connect(MONGO_URL, {
   useNewUrlParser: true,
